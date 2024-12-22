@@ -1,5 +1,4 @@
 import express from "express";
-import axios from "axios";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -18,19 +17,20 @@ app.use(
 
 app.post("/shorten", async (req, res) => {
   const { url, custom } = req.body;
+  const fullUrl = !custom
+    ? `${process.env.API_URL}?url=${url}`
+    : `${process.env.API_URL}?url=${url}&custom=${custom}`;
 
   try {
-    const result = await axios.post("https://ulvis.net/API/write/get", null, {
-      params: { url, custom },
-    });
+    const result = await fetch(fullUrl);
 
-    console.log(result.data);
+    const data = await result.json();
 
-    res.send(result.data.data);
+    console.log(data);
+
+    res.send(data.data);
   } catch (error) {
     console.log(error);
-
-    res.sendStatus(500).json({ error: "API Busy" });
   }
 });
 
